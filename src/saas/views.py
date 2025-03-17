@@ -26,7 +26,7 @@ def about_view(request, *args, **kwargs):
     qs = PageVisits.objects.all()
     page_qs = PageVisits.objects.filter(path=request.path)
     try:
-        percent_visit = (page_qs.count()/qs.count())*100
+        percent_visit = round((page_qs.count()/qs.count())*100, 2)
     except ZeroDivisionError:
         percent_visit = 0
     my_title = "Homepage"

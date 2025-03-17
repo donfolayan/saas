@@ -87,9 +87,7 @@ WSGI_APPLICATION = 'saas.wsgi.application'
 CONN_MAX_AGE = config('CONN_MAX_AGE', cast=int)
 DATABASE_URL = config('DATABASE_URL', cast=str)
 
-DATABASES = config('DATABASE_URL', cast=str)
-
-if DATABASES is not None:
+if DATABASE_URL is not None:
     import dj_database_url
     DATABASES = {
         'default': dj_database_url.config(

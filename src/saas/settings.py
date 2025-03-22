@@ -88,8 +88,15 @@ WSGI_APPLICATION = 'saas.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+
 CONN_MAX_AGE = config('CONN_MAX_AGE', cast=int)
-DATABASE_URL = config('DATABASE_URL', cast=str)
+DATABASE_URL = config('DATABASE_URL', default=None)
 
 if DATABASE_URL is not None:
     import dj_database_url
@@ -138,7 +145,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_BASE_DIR = BASE_DIR / 'staticfiles'
-STATICFILES_VENDOR_DIR = BASE_DIR / 'staticfiles/vendor'
+STATICFILES_VENDOR_DIR = BASE_DIR / 'staticfiles/vendors'
 STATICFILES_VENDOR_DIR.mkdir(exist_ok=True, parents=True)
 
 STATICFILES_DIRS = [

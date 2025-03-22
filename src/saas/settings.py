@@ -44,14 +44,18 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
 
     #my apps
     'visits',
+    'helpers',
+    'commando',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -135,10 +139,17 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATICFILES_BASE_DIR = BASE_DIR / 'staticfiles'
 STATICFILES_VENDOR_DIR = BASE_DIR / 'staticfiles/vendor'
+STATICFILES_VENDOR_DIR.mkdir(exist_ok=True, parents=True)
 
 STATICFILES_DIRS = [
     STATICFILES_BASE_DIR,
 ]
+
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 #cdn
 STATIC_ROOT = BASE_DIR / 'local_cdn'

@@ -16,6 +16,29 @@ from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+#Email Config
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.google.com')
+EMAIL_PORT = config('EMAIL_PORT', cast=int, default='587')
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool, default=1)
+EMAIL_USE_SSL = config('EMAIL_USE_SSL', cast=bool, default=0)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', cast=str)
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+
+#500 Errors
+
+ADMIN_USERNAME = config('ADMIN_USERNAME', default='admin')
+ADMIN_EMAIL = config('ADMIN_EMAIL', default=None)
+
+ADMINS = []
+MANAGERS = []
+
+if all([ADMIN_EMAIL, ADMIN_USERNAME]):
+    ADMINS += [
+        (f'{ADMIN_USERNAME}', f'{ADMIN_EMAIL}')
+        ]
+    MANAGERS=ADMINS
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 

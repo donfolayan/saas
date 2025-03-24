@@ -13,23 +13,14 @@
             {% endblock head_title %} - Django Saas
         </title>
         {% block extra_head %}
-            <!-- <link rel="stylesheet" href="{% static 'allauth_ui/output.css' %}"> -->
+            <link rel="stylesheet" href="{% static 'allauth_ui/output.css' %}">
         {% endblock extra_head %}
         {% include 'base/css.html' %}
     </head>
     <body class="min-h-screen bg-base-300">
-        <nav>
-            {% include 'nav/navbar.html' %}
-        </nav>
+        {% include 'nav/navbar.html' %}
         {% block body %}
-            {% if messages %}
-                {% for message in messages %}
-                    <div role="alert"
-                         class="text-sm md:text-base alert alert-{{ message.tags }}">
-                        <span><strong>{{ message }}</strong></span>
-                    </div>
-                {% endfor %}
-            {% endif %}
+        {% include 'base/messages.html' with messages=messages %}
             {% block content %}
             {% endblock content %}
             <div class="mx-auto [&_a]:link text-sm flex flex-col md:flex-row items-center justify-center gap-3 mt-3">

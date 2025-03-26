@@ -39,3 +39,8 @@ def about_view(request, *args, **kwargs):
     PageVisits.objects.create(path=request.path)
     html_template  = "home.html"
     return render(request, html_template, my_context)
+
+def pw_protected_view(request, *args, **kwargs):
+    is_allowed = False
+    
+    return render(request, 'protected/entry.html')

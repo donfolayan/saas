@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block head_title %}
+
+    Users - {{ block.super }}
+
+{% endblock head_title %}
+
+{% block content %}
+
+    <h1 class="text-lg font-medium pb-12 pb-[50px]">{{ instance.username }}</h1>
+    {% if perms.auth or is_me %}
+        {% if perms.auth.view_user or is_me %}
+            <div>
+                Username: {{instance.username}} <br>
+                Email: {{instance.email}} <br>
+                First Name: {{instance.first_name}} <br>
+                Last Name: {{instance.last_name}} <br>
+                Date Joined: {{instance.date_joined}} <br>
+                Last Login: {{instance.last_login}}
+            </div>
+        {% endif %}
+        {% else %}
+            <p> You're not allowed to view this </p>
+    {% endif %}
+
+{% endblock content %}

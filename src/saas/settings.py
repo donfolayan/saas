@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     #my apps
     'visits',
     'profiles',
+    'subscriptions',
     'commando',
 
     #3rd party

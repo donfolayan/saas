@@ -1,3 +1,4 @@
+import helpers.billing
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import Group, Permission
@@ -14,6 +15,9 @@ SUBSCRIPTION_PERMISSIONS = [
         ]
 
 class Subscription(models.Model):
+    '''
+    Stripe Product - Subscription Model to manage subscription plan and permissions.
+    '''
     name = models.CharField(max_length=120)
     groups = models.ManyToManyField(Group)
     active = models.BooleanField(default=True)
@@ -24,12 +28,76 @@ class Subscription(models.Model):
         'codename__in': [x[0] for x in SUBSCRIPTION_PERMISSIONS],
         }
     )
+    stripe_id = models.CharField(max_length=120, blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if not self.stripe_id:
+            stripe_id = helpers.billing.create_product(
+                name=self.name,
+                metadata={
+                    'subscription_plan_id': self.id,
+                    },
+                raw=False
+            )
+            self.stripe_id = stripe_id
+        super().save(*args, **kwargs)
+
 
     def __str__(self):
         return f'{self.name}'
 
     class Meta:
         permissions = SUBSCRIPTION_PERMISSIONS
+
+
+class SubscriptionPrice(models.Model):
+    '''
+    Stripe Price - Subscription prices for different plans.
+    '''
+    class IntervalChoices(models.TextChoices):
+        MONTHLY = 'month', 'Monthly'
+        YEARLY = 'year', 'Yearly'
+    subscription = models.ForeignKey(Subscription, on_delete=models.SET_NULL, null=True, blank=True)
+    stripe_id = models.CharField(max_length=120, blank=True, null=True)
+    interval = models.CharField(max_length=120, 
+                                default=IntervalChoices.MONTHLY, 
+                                choices=IntervalChoices.choices)
+    
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=99.99)
+
+    @property
+    def stripe_currency(self):
+        return 'usd'
+    
+    @property
+    def stripe_price(self):
+        '''
+        Remove the decimal point and convert to cents.
+        For example, 99.99 becomes 9999.
+        '''
+        return self.price * 100
+
+    @property
+    def product_stripe_id(self):
+        if not self.subscription:
+            return None
+        return self.subscription.stripe_id
+    
+    def save(self, *args, **kwargs):
+        if (not self.stripe_id and 
+            self.product_stripe_id is not None):
+            stripe_id = helpers.billing.create_price(
+            currency=self.stripe_currency,
+            unit_amount=self.stripe_price,
+            recurring={"interval": self.interval},
+            product=self.product_stripe_id,
+            metadata={
+                'subscription_plan_price_id': self.id,
+            },
+            raw=False
+        )
+        super().save(*args, **kwargs)
+
 
 class UserSubscription(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

@@ -32,13 +32,13 @@ def create_product(name='', metadata={}, raw=False):
     return stripe_id
 
 def create_price(
-        currency="usd",
-        unit_amount='9999',
-        interval="month",
-        product=None,
-        metadata={},
-        raw=False,
-        ):
+        currency = "usd",
+        unit_amount = '9999',
+        interval = "month",
+        product = None,
+        metadata = {},
+        raw= False,
+    ):
     if not product:
         raise ValueError("Product is required")
     response = stripe.Price.create(

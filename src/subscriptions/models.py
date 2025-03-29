@@ -75,7 +75,7 @@ class SubscriptionPrice(models.Model):
         Remove the decimal point and convert to cents.
         For example, 99.99 becomes 9999.
         '''
-        return self.price * 100
+        return int(self.price * 100)
 
     @property
     def product_stripe_id(self):
@@ -84,18 +84,18 @@ class SubscriptionPrice(models.Model):
         return self.subscription.stripe_id
     
     def save(self, *args, **kwargs):
-        if (not self.stripe_id and 
-            self.product_stripe_id is not None):
+        if (not self.stripe_id and self.product_stripe_id is not None):
             stripe_id = helpers.billing.create_price(
-            currency=self.stripe_currency,
-            unit_amount=self.stripe_price,
-            recurring={"interval": self.interval},
-            product=self.product_stripe_id,
+            currency = self.stripe_currency,
+            unit_amount = self.stripe_price,
+            interval=self.interval,
+            product = self.product_stripe_id,
             metadata={
                 'subscription_plan_price_id': self.id,
             },
             raw=False
-        )
+            )
+            self.stripe_id = stripe_id
         super().save(*args, **kwargs)
 
 

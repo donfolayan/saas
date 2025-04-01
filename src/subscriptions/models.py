@@ -74,7 +74,7 @@ class SubscriptionPrice(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['order', 'featured', '-updated']
+        ordering = ['subscription__order', 'order', 'featured', '-updated']
 
     @property
     def stripe_currency(self):

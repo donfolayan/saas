@@ -33,6 +33,8 @@ class Subscription(models.Model):
     featured = models.BooleanField(default=True, help_text='Featured Price on landing page')
     updated = models.DateTimeField(auto_now=True)
     timestamp = models.DateTimeField(auto_now_add=True)
+    features = models.TextField(help_text='Comma separated list of features', blank=True, null=True)
+
 
     def save(self, *args, **kwargs):
         if not self.stripe_id:
@@ -45,6 +47,9 @@ class Subscription(models.Model):
             )
             self.stripe_id = stripe_id
         super().save(*args, **kwargs)
+
+    def get_features_as_list(self):
+        return [x.strip() for x in self.features.split('\n')] if self.features else []
 
     def __str__(self):
         return f'{self.name}'
@@ -72,6 +77,7 @@ class SubscriptionPrice(models.Model):
     featured = models.BooleanField(default=True, help_text='Featured Price on landing page')
     updated = models.DateTimeField(auto_now=True)
     timestamp = models.DateTimeField(auto_now_add=True)
+    features = models.TextField(help_text='Comma separated list of features', blank=True, null=True)
 
     class Meta:
         ordering = ['subscription__order', 'order', 'featured', '-updated']
@@ -93,6 +99,17 @@ class SubscriptionPrice(models.Model):
         if not self.subscription:
             return None
         return self.subscription.stripe_id
+
+    @property
+    def display_sub_name(self):
+        return self.subscription.name if self.subscription else 'Plan'
+    
+    @property
+    def display_price_obj(self):
+        return self.price
+    
+    def display_features_list(self):
+        return self.subscription.get_features_as_list() if self.subscription else []
     
     def save(self, *args, **kwargs):
         if (not self.stripe_id and self.product_stripe_id is not None):

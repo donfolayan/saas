@@ -19,6 +19,7 @@ class Subscription(models.Model):
     Stripe Product - Subscription Model to manage subscription plan and permissions.
     '''
     name = models.CharField(max_length=120)
+    subtitle = models.TextField(blank=True, null=True)
     groups = models.ManyToManyField(Group)
     active = models.BooleanField(default=True)
     permissions = models.ManyToManyField(
@@ -107,6 +108,10 @@ class SubscriptionPrice(models.Model):
     @property
     def display_price_obj(self):
         return self.price
+    
+    @property
+    def display_sub_subtitle(self):
+        return self.subscription.subtitle if self.subscription else 'Plan Subtitle'
     
     def display_features_list(self):
         return self.subscription.get_features_as_list() if self.subscription else []

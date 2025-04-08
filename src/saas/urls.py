@@ -36,6 +36,7 @@ urlpatterns = [
     path('protected/user-only', user_required_view),
     path('protected/staff-only', staff_required_view),
     path('pricing/', subscription_views.subscription_price_view, name='pricing'),
+    path('pricing/<str:interval>/', subscription_views.subscription_price_view, name='pricing_interval'),
     path('admin/', admin.site.urls),
     
 ]

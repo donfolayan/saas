@@ -96,16 +96,8 @@ def checkout_finalize_view(request):
         for k, v in updated_sub_options.items():
             setattr(_user_sub_obj, k, v)
         _user_sub_obj.save()
-    
-    print('User Object: ', user_obj, 
-              'Subscription Object: ',sub_obj, 
-              'User Subscription Object: ', _user_sub_obj)
 
     if None in [user_obj, sub_obj, _user_sub_obj]:
-        print('User Object: ', user_obj, 
-              'Subscription Object: ',sub_obj, 
-              'User Subscription Object: ', _user_sub_obj)
-        
         return HttpResponseBadRequest("There was an error with your account, please contact us.")
 
     context = {}

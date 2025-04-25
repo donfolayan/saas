@@ -2,9 +2,11 @@ import helpers.billing
 from django.urls import reverse
 from django.conf import settings
 from django.shortcuts import render, redirect
+from django.http import HttpResponseBadRequest
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from subscriptions.models import SubscriptionPrice, Subscription, UserSubscription
+
 
 User = get_user_model()
 
@@ -47,9 +49,12 @@ def checkout_finalize_view(request):
     session_id = request.GET.get('session_id')
     if session_id is None:
         return redirect('home')
-    customer_id, plan_id , sub_stripe_id = helpers.billing.get_checkout_customer_plan(session_id)
-
-    price_qs = SubscriptionPrice.objects.filter(stripe_id=plan_id)
+    checkout_data = helpers.billing.get_checkout_customer_plan(session_id)
+    plan_id = checkout_data.get('plan_id')
+    customer_id = checkout_data.get('customer_id')
+    sub_stripe_id = checkout_data.get('sub_stripe_id')
+    current_period_start = checkout_data.get('current_period_start')
+    current_period_end = checkout_data.get('current_period_end')
 
     try:
         sub_obj = Subscription.objects.get(subscriptionprice__stripe_id=plan_id)
@@ -62,26 +67,45 @@ def checkout_finalize_view(request):
         user_obj = None
     
     _user_sub_exists = False
+    updated_sub_options = {
+        'subscription': sub_obj,
+        'stripe_id': sub_stripe_id,
+        'user_cancelled': False,
+        'current_period_start': current_period_start,
+        'current_period_end': current_period_end,
+    }
     try:
         _user_sub_obj = UserSubscription.objects.get(user = user_obj)
         _user_sub_exists = True
     except UserSubscription.DoesNotExist:
-        _user_sub_obj = UserSubscription.objects.create(user = user_obj, subscription=sub_obj, stripe_id=sub_stripe_id)
+        _user_sub_obj = UserSubscription.objects.create(user = user_obj, **updated_sub_options)
     except:
         _user_sub_obj = None
 
     if _user_sub_exists:
         #cancel the old subscription
         old_stripe_id = _user_sub_obj.stripe_id
-        if old_stripe_id is not None:
-            helpers.billing.cancel_subscription(old_stripe_id, reason='User changed subscription', feedback='other')
+        same_stripe_id = sub_stripe_id == old_stripe_id
+        if old_stripe_id is not None and not same_stripe_id:
+            try:
+                helpers.billing.cancel_subscription(old_stripe_id, reason='User changed subscription', feedback='other')
+            except:
+                pass
         
         #update the subscription
-        _user_sub_obj = sub_obj
-        _user_sub_obj.stripe_id = sub_stripe_id
+        for k, v in updated_sub_options.items():
+            setattr(_user_sub_obj, k, v)
         _user_sub_obj.save()
+    
+    print('User Object: ', user_obj, 
+              'Subscription Object: ',sub_obj, 
+              'User Subscription Object: ', _user_sub_obj)
 
     if None in [user_obj, sub_obj, _user_sub_obj]:
+        print('User Object: ', user_obj, 
+              'Subscription Object: ',sub_obj, 
+              'User Subscription Object: ', _user_sub_obj)
+        
         return HttpResponseBadRequest("There was an error with your account, please contact us.")
 
     context = {}

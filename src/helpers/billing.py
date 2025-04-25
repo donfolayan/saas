@@ -1,4 +1,5 @@
 import stripe
+from . import date_utils
 from decouple import config
 
 DJANGO_DEBUG = config("DJANGO_DEBUG", default=False, cast=bool)
@@ -111,4 +112,15 @@ def get_checkout_customer_plan(session_id, raw=True):
     sub_stripe_id = checkout_r.subscription
     sub_r = get_subscription(sub_stripe_id, raw=True)
     sub_plan = sub_r.plan
-    return customer_id, sub_plan.id, sub_stripe_id
+
+    current_period_start = date_utils.timestamp_as_datetime(sub_r.current_period_start)
+    current_period_end = date_utils.timestamp_as_datetime(sub_r.current_period_end)
+
+    data = {
+        'customer_id': customer_id,
+        'plan_id': sub_plan.id,
+        'sub_stripe_id': sub_stripe_id,
+        'current_period_start': current_period_start,
+        'current_period_end': current_period_end,
+    }
+    return data

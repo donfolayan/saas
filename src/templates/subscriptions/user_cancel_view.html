@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block head_title %}
+
+    User Detail View - {{ block.super }}
+
+{% endblock head_title %}
+
+{% block content %}
+    {% if subscription.is_active_status %}
+        <h1 class='text-lg font-medium'>Are you sure you want to cancel {{ subscription.plan_name }}?</h1>
+        <form action = '' method='POST'>
+            {% csrf_token %}
+            <button type='submit'>Yes, Cancel</button>
+        </form>
+        <a href='{{ subscription.get_absolute_url }}'>No, Keep Membership</a>
+    {% else %}
+        <h1 class='text-lg font-medium'>You do not have an active membership</h1>
+    {% endif %}
+
+    <p>Plan name: {{ subscription.plan_name }}</p>
+    <p>Status: {{ subscription.status|title }}</p>
+    <p>Membership Age: {{ subscription.original_period_start|timesince }}</p>
+    <p>Start: {{ subscription.current_period_start }}</p>
+    <p>End: {{ subscription.current_period_end|timeuntil }}</p>
+
+{% endblock content %}

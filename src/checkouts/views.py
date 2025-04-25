@@ -1,6 +1,7 @@
 import helpers.billing
 from django.urls import reverse
 from django.conf import settings
+from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.http import HttpResponseBadRequest
 from django.contrib.auth import get_user_model
@@ -94,6 +95,8 @@ def checkout_finalize_view(request):
         for k, v in updated_sub_options.items():
             setattr(_user_sub_obj, k, v)
         _user_sub_obj.save()
+        messages.success(request, "You've successfully purchased a subscription")
+        return redirect(_user_sub_obj.get_absolute_url())
 
     if None in [user_obj, sub_obj, _user_sub_obj]:
         return HttpResponseBadRequest("There was an error with your account, please contact us.")

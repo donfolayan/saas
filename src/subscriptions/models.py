@@ -157,12 +157,15 @@ class SubscriptionStatus(models.TextChoices):
         PAUSED = 'paused', 'Paused'
 
 class UserSubscriptionQuerySet(models.QuerySet):
-    def by_range(self, day_start=7, day_end=120):
+    def by_range(self, day_start=7, day_end=120, verbose=True):
         now = timezone.now()
         days_start_from_now = now + datetime.timedelta(days=day_start)
         days_end_from_now = now + datetime.timedelta(days=day_end)
         range_start = days_start_from_now .replace(hour=0, minute=0, second=0, microsecond=0)
         range_end = days_end_from_now .replace(hour=23, minute=59, second=59, microsecond=999999)
+        if verbose:
+            print(f'Range Start: {range_start} - Range End: {range_end}')
+
         return self.filter(current_period_end__gte=range_start, current_period_end__lte=range_end)
     
     def by_days_left(self, days_left=7):
@@ -174,7 +177,7 @@ class UserSubscriptionQuerySet(models.QuerySet):
     
     def by_days_ago(self, days_ago=3):
         now = timezone.now()
-        in_n_days = now - datetime.timedelta(days=days_left)
+        in_n_days = now - datetime.timedelta(days=days_ago)
         day_start = in_n_days .replace(hour=0, minute=0, second=0, microsecond=0)
         day_end = in_n_days .replace(hour=23, minute=59, second=59, microsecond=999999)
         return self.filter(current_period_end__gte=day_start, current_period_end__lte=day_end)

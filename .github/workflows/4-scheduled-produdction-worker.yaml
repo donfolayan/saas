@@ -1,0 +1,53 @@
+name: 4- Run management command on schedule
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0, 1,12 * * *"
+    - cron: "0 4 1 * *"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      EMAIL_HOST_PASSWORD: "test"
+      STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+      NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+      NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
+      NEON_PROD_BRANCH: "prod"
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.11"
+      - name: Install Neon CLI
+        run: |
+          npm install -g neonctl
+      - name: DB URL for Neon Branch
+        run: |
+          NEON_CONN_STR=$(neonctl connection-string --branch "${{ env.NEON_PROD_BRANCH }}" --project-id "${{ env.NEON_PROJECT_ID }}")
+          echo "DATABASE_URL=$NEON_CONN_STR" >> $GITHUB_ENV
+      - name: Setup Django Secret Key
+        run: |
+          GEN_KEY=$(openssl rand -base64 32)
+          echo "DJANGO_SECRET_KEY=$GEN_KEY" >> $GITHUB_ENV
+      - name: Install Requirements
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+      - name: Users Stripe Subscription Sync 
+        if: github.event.schedule != '0 4 1 * *'
+        working-directory: ./src
+        run: |
+          python manage.py sync_user_subs --day-start 0 --day-end 1
+      - name: Clear Dangling Stripe Subscription
+        working-directory: ./src
+        if: github.event.schedule == '0 4 1 * *'
+        run: |
+          python manage.py sync_user_subs --clear-dangling

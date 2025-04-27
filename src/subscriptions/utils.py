@@ -4,14 +4,20 @@ from django.db.models import Q
 from customers.models import Customer
 from subscriptions.models import UserSubscription, Subscription, SubscriptionStatus
 
-def refresh_active_user_subscriptions(user_ids=None, active_only=True, days_ago=0, days_left=0, day_start=0, day_end=0, verbose=False):
+def refresh_active_user_subscriptions(
+        user_ids=None, active_only=True, 
+        days_ago=-1, 
+        days_left=-1, 
+        day_start=-1, 
+        day_end=-1, 
+        verbose=False):
     
     qs = UserSubscription.objects.all()
     qs = qs.by_active_trialing() if active_only else qs
     qs = qs.by_user_ids(user_ids=user_ids) if user_ids is not None else qs
-    qs = qs.by_days_ago(days_ago=days_ago) if days_ago > 0 else qs
-    qs = qs.by_days_left(days_left=days_left) if days_left > 0 else qs
-    qs = qs.by_range(day_start=day_start, day_end=day_end) if day_start > 0 and day_end > 0 else qs
+    qs = qs.by_days_ago(days_ago=days_ago) if days_ago > -1 else qs
+    qs = qs.by_days_left(days_left=days_left) if days_left > -1 else qs
+    qs = qs.by_range(day_start=day_start, day_end=day_end, verbose=verbose) if day_start > -1 and day_end > -1 else qs
     
     complete_count = 0
     qs_count = qs.count()

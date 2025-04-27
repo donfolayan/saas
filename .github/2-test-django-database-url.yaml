@@ -2,15 +2,16 @@ name: 1- Test Django Basic
 
 on:
   workflow_dispatch:
-  # push:
-  #   branches:
-  #     - main
+  push:
+    branches:
+      - main
 
 jobs:
   test:
     runs-on: ubuntu-latest
     env:
       EMAIL_HOST_PASSWORD: 'test'
+      DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4

@@ -35,7 +35,7 @@ jobs:
           neonctl branches delete "${{ env.NEON_GITHUB_BRANCH }}" --project-id "${{ env.NEON_PROJECT_ID }}"
       - name: Create Neon Branch
         run: |
-          neonctl branches create "${{ env.NEON_GITHUB_BRANCH }}" --parent "${{ env.NEON_PROD_BRANCH }}" --project-id "${{ env.NEON_PROJECT_ID }}"
+          neonctl branches create --name "${{ env.NEON_GITHUB_BRANCH }}" --parent "${{ env.NEON_PROD_BRANCH }}" --project-id "${{ env.NEON_PROJECT_ID }}"
       - name: DB URL for Neon Branch
         run: |
           NEON_CONN_STR=$(neonctl connection-string --branch "${{ env.NEON_GITHUB_BRANCH }}" --project-id "${{ env.NEON_PROJECT_ID }}")

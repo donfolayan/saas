@@ -22,7 +22,7 @@ EMAIL_HOST = config('EMAIL_HOST', default='smtp.google.com')
 EMAIL_PORT = config('EMAIL_PORT', cast=int, default='587')
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool, default=1)
 EMAIL_USE_SSL = config('EMAIL_USE_SSL', cast=bool, default=0)
-EMAIL_HOST_USER = config('EMAIL_HOST_USER', cast=str)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='Donald' ,cast=str)
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
 #500 Errors
@@ -46,7 +46,7 @@ if all([ADMIN_EMAIL, ADMIN_USERNAME]):
 SECRET_KEY = config('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DJANGO_DEBUG', cast=bool)
+DEBUG = config('DJANGO_DEBUG', default=0 , cast=bool)
 BASE_URL = config('BASE_URL', default=None)
 ALLOWED_HOSTS = [
     '.railway.app',
@@ -132,7 +132,7 @@ DATABASES = {
     }
 }
 
-CONN_MAX_AGE = config('CONN_MAX_AGE', cast=int)
+CONN_MAX_AGE = config('CONN_MAX_AGE', default=30 ,cast=int)
 DATABASE_URL = config('DATABASE_URL', default=None)
 
 if DATABASE_URL is not None:

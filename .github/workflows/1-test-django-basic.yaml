@@ -10,10 +10,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
-      DJANGO_DEBUG: 0
-      EMAIL_HOST_USER: 'test@test.test'
       EMAIL_HOST_PASSWORD: 'test'
-      EMAIL_HOST: 'test.test'
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4

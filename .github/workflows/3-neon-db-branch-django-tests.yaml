@@ -36,9 +36,6 @@ jobs:
       - name: Create Neon Branch
         run: |
           neonctl branches create --name "${{ env.NEON_GITHUB_BRANCH }}" --parent "${{ env.NEON_PROD_BRANCH }}" --project-id "${{ env.NEON_PROJECT_ID }}"
-      - name: Delete Created Neon Branch
-        run: |
-          neonctl branches delete "${{ env.NEON_GITHUB_BRANCH }}" --project-id "${{ env.NEON_PROJECT_ID }}"
       - name: DB URL for Neon Branch
         run: |
           NEON_CONN_STR=$(neonctl connection-string --branch "${{ env.NEON_GITHUB_BRANCH }}" --project-id "${{ env.NEON_PROJECT_ID }}")
@@ -55,3 +52,6 @@ jobs:
         working-directory: ./src
         run: |
           python manage.py test --noinput --keepdb
+      - name: Delete Created Neon Branch
+        run: |
+          neonctl branches delete "${{ env.NEON_GITHUB_BRANCH }}" --project-id "${{ env.NEON_PROJECT_ID }}"

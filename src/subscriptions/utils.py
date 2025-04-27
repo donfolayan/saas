@@ -1,7 +1,37 @@
 from typing import Any
 import helpers.billing
+from django.db.models import Q
 from customers.models import Customer
-from subscriptions.models import UserSubscription, Subscription
+from subscriptions.models import UserSubscription, Subscription, SubscriptionStatus
+
+def refresh_active_user_subscriptions(user_ids=None):
+    
+    active_qs_loookup = (Q(status = SubscriptionStatus.ACTIVE) | Q(status = SubscriptionStatus.TRIALING))
+    qs = UserSubscription.objects.filter(active_qs_loookup)
+    if isinstance(user_ids, list):
+        qs = qs.filter(user_id__in=user_ids)
+    elif isinstance(user_ids, int):
+        qs = qs.filter(user_id=[user_ids])
+    elif isinstance(user_ids, str):
+        qs = qs.filter(user_id=[user_ids])
+    
+    complete_count = 0
+    qs_count = qs.count()
+    
+    for obj in qs:
+        if obj.stripe_id and obj.is_active_status:
+            sub_data = helpers.billing.cancel_subscription(
+                obj.stripe_id, 
+                reason='User wanted to end', 
+                feedback='other',
+                cancel_at_period_end=True,
+                raw=False)
+
+            for k, v in sub_data.items():
+                setattr(obj, k, v)
+            obj.save()
+            complete_count += 1
+    return complete_count == qs_count
 
 def clear_dangling_subs():
     qs = Customer.objects.filter(stripe_id__isnull=False)
@@ -25,5 +55,4 @@ def sync_sub_group_permissions():
         sub_perms = obj.permissions.all()
         for group in obj.groups.all():
             group.permissions.set(sub_perms)
-        
         

@@ -1,4 +1,4 @@
-name: 1- Test Django Basic
+name: 3- Neon DB Branch Django Tests
 
 on:
   workflow_dispatch:
@@ -32,10 +32,10 @@ jobs:
       - name: Delete Previous Neon Branch
         continue-on-error: true
         run: |
-          neonctl branches delete ' ${{ env.NEON_GITHUB_BRANCH }} ' --project-id ' ${{ env.NEON_PROJECT_ID }} '
+          neonctl branches delete '${{ env.NEON_GITHUB_BRANCH }}' --project-id '${{ env.NEON_PROJECT_ID }}'
       - name: Create Neon Branch
         run: |
-          neonctl branches create ' ${{ env.NEON_GITHUB_BRANCH }} ' --parent ' ${{ env.NEON_PROD_BRANCH }} ' --project-id ' ${{ env.NEON_PROJECT_ID }} '
+          neonctl branches create '${{ env.NEON_GITHUB_BRANCH }}' --parent '${{ env.NEON_PROD_BRANCH }}' --project-id ' ${{ env.NEON_PROJECT_ID }} '
       - name: DB URL for Neon Branch
         run: |
           NEON_CONN_STR=$(neonctl connection-string --branch ' ${{ env.NEON_GITHUB_BRANCH }} ' --project-id ' ${{ env.NEON_PROJECT_ID }} ')

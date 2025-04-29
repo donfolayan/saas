@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 VENDOR_STATICFILES = {
+    'saas-theme.min.css': 'https://raw.githubusercontent.com/codingforentrepreneurs/SaaS-Foundations/refs/heads/main/src/staticfiles/theme/saas-theme.min.css',
     'flowbite.min.css': 'https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css',
     'flowbite.min.js': 'https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js',
     'flowbite.min.js.map': 'https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js.map',

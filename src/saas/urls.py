@@ -29,8 +29,7 @@ from .views import (
 
 
 urlpatterns = [
-    path('', landing_views.landing_page_view, name='home'),
-    path('home/', landing_views.landing_page_view, name='home'),
+    path('', landing_views.landing_dashboard_page_view, name='home'),
     path('about', about_view, name='about'),
     
     path('accounts/', include('allauth.urls')),
